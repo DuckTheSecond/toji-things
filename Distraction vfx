@@ -1,4 +1,3 @@
-
 -- Function to change particle color
 local function changeParticleColor(vfx, color)
     for _, child in ipairs(vfx:GetChildren()) do
@@ -42,7 +41,7 @@ animator.AnimationPlayed:Connect(function(playedAnimation)
 
         for _, vfx in ipairs(vfxSettings) do
             emitVFX(vfxTemplate, vfx.color, vfx.angle)
-            task.wait(1.26) -- Delay between each VFX emission
+            task.wait(1.275) -- Delay between each VFX emission
         end
     end
 end)
