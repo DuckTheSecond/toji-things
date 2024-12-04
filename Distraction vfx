@@ -1,0 +1,107 @@
+-- Function to change particle color
+local function changeParticleColor(vfx, color)
+    for _, child in ipairs(vfx:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(color)
+        end
+    end
+end
+
+-- Function to emit VFX
+local function emitVFX(template, color, angles)
+    local vfx = template:Clone()
+    vfx.CFrame = vfx.CFrame * CFrame.Angles(math.rad(0), math.rad(0), math.rad(angles))
+    vfx.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+
+    changeParticleColor(vfx, color)
+
+    for _, child in ipairs(vfx:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child:Emit(10)
+        end
+    end
+end
+
+-- Configuration
+local vfxTemplate = game.ReplicatedStorage.Resources.SplitCounter["Bruh"].Bruh.Bruh
+local animationId = "rbxassetid://15279910941"
+local vfxSettings = {
+    {angle = 90, color = Color3.new(5, 0, 0)},
+    {angle = 45, color = Color3.new(5, 0, 0)},
+}
+
+-- Listen for animation playback
+local player = game.Players.LocalPlayer
+local humanoid = player.Character:WaitForChild("Humanoid")
+local animator = humanoid:WaitForChild("Animator")
+
+animator.AnimationPlayed:Connect(function(playedAnimation)
+    if playedAnimation.Animation.AnimationId == animationId then
+        task.wait(0.5) -- Ensure startup delay
+
+        for _, vfx in ipairs(vfxSettings) do
+            emitVFX(vfxTemplate, vfx.color, vfx.angle)
+            task.wait(1.25) -- Delay between each VFX emission
+        end
+    end
+end)
+
+-- Function to smoothly fade out particle emitters
+local function fadeOutParticles(particleEmitter, duration)
+    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
+    local endTransparency = 1 -- Fully transparent
+
+    for i = 0, duration, 0.1 do
+        local alpha = i / duration
+        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
+        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
+        task.wait(0.1)
+    end
+
+    -- Fully disable the particle emitter after fading out
+    particleEmitter.Enabled = false
+end
+
+-- Function to play the Sunblitz effect
+local function playEffect(template)
+    local effect = template:Clone()
+    effect.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+
+    -- Adjust the attachment's position and rotation
+    effect.Position = Vector3.new(0, 0, 0)
+    effect.CFrame = effect.CFrame * CFrame.Angles(math.rad(0), 0, 0)
+
+    -- Configure particle emitters
+    for _, child in ipairs(effect:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child:Emit(5)
+            child.Enabled = true
+
+            -- Start fading out the particles after 2 seconds
+            task.delay(0.9, function()
+                fadeOutParticles(child, 1.1) -- Fade out over 1 second
+            end)
+        end
+    end
+
+    -- Destroy the effect after the fade-out completes
+    task.delay(3, function()
+        effect:Destroy()
+    end)
+end
+
+-- Configuration
+local effectTemplate = game.ReplicatedStorage.Resources.Sunblitz.TP.Part.Windy
+local animationId = "rbxassetid://15279910941"
+
+-- Listen for animation playback
+local player = game.Players.LocalPlayer
+local humanoid = player.Character:WaitForChild("Humanoid")
+local animator = humanoid:WaitForChild("Animator")
+
+animator.AnimationPlayed:Connect(function(playedAnimation)
+    if playedAnimation.Animation.AnimationId == animationId then
+        task.wait(0.5) -- Startup delay before the effect starts
+        playEffect(effectTemplate)
+    end
+end)
