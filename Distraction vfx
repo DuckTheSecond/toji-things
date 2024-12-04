@@ -1,3 +1,4 @@
+
 -- Function to change particle color
 local function changeParticleColor(vfx, color)
     for _, child in ipairs(vfx:GetChildren()) do
@@ -37,11 +38,11 @@ local animator = humanoid:WaitForChild("Animator")
 
 animator.AnimationPlayed:Connect(function(playedAnimation)
     if playedAnimation.Animation.AnimationId == animationId then
-        task.wait(0.5) -- Ensure startup delay
+        task.wait(0.55) -- Ensure startup delay
 
         for _, vfx in ipairs(vfxSettings) do
             emitVFX(vfxTemplate, vfx.color, vfx.angle)
-            task.wait(1.25) -- Delay between each VFX emission
+            task.wait(1.26) -- Delay between each VFX emission
         end
     end
 end)
@@ -79,7 +80,7 @@ local function playEffect(template)
 
             -- Start fading out the particles after 2 seconds
             task.delay(0.9, function()
-                fadeOutParticles(child, 1.1) -- Fade out over 1 second
+                fadeOutParticles(child, 1.05) -- Fade out over 1 second
             end)
         end
     end
