@@ -1,5 +1,4 @@
---[[Execute Anims + vfx (Animations when you execute script]]
-
+--[[Execute Anims + vfx (Animations when you execute script)]]
 local p = game.Players.LocalPlayer
 local Humanoid = p.Character:WaitForChild("Humanoid")
  
@@ -18,14 +17,11 @@ Anim:Play()
 Anim:AdjustSpeed(0)
 Anim.TimePosition = startTime
 Anim:AdjustSpeed(0.6)
-
 --[[END OF EXECUTE ANIMS]]
-
 -- Define the player and their character
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local rootPart = character:WaitForChild("HumanoidRootPart")
-
 -- Rising configuration
 local risingConfig = {
     startPosition = Vector3.new(0, -10, 0), -- Starting position offset relative to the current position
@@ -33,7 +29,6 @@ local risingConfig = {
     speed = 5, -- Movement speed (studs per second)
     startDelay = 0 -- Delay before the rising effect begins
 }
-
 -- Function to disable collisions for the character
 local function setCharacterCollisionEnabled(character, enabled)
     for _, part in pairs(character:GetDescendants()) do
@@ -42,167 +37,176 @@ local function setCharacterCollisionEnabled(character, enabled)
         end
     end
 end
-
 -- Function to move the character smoothly
 local function moveCharacter(startPosition, endPosition, speed)
     local distance = (endPosition - startPosition).Magnitude
     local duration = distance / speed
-
     -- Create a tween to move the character
     local tweenService = game:GetService("TweenService")
     local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
     local goal = { CFrame = CFrame.new(endPosition) }
-
     local tween = tweenService:Create(rootPart, tweenInfo, goal)
     tween:Play()
-
     -- Wait for the tween to complete
     tween.Completed:Wait()
 end
-
 -- Function to handle rising
 local function riseFromGround()
     -- Store the character's original position
     local originalPosition = rootPart.Position
-
     -- Calculate the starting and ending positions
     local startPosition = originalPosition + risingConfig.startPosition
     local endPosition = originalPosition + risingConfig.endPosition
-
     -- Disable collisions
     setCharacterCollisionEnabled(character, false)
-
     -- Move the character to the starting position instantly
     rootPart.CFrame = CFrame.new(startPosition)
-
     -- Smoothly move the character to the end position
     moveCharacter(startPosition, endPosition, risingConfig.speed)
-
     -- Re-enable collisions after movement
     setCharacterCollisionEnabled(character, true)
 end
-
 -- Add a startup delay before the rising effect begins
 task.delay(risingConfig.startDelay, function()
     riseFromGround()
 end)
-
 -- VFX for Sunblitz.TP.Part.Windy
 -- Define the effect
 local Test =  ((game.ReplicatedStorage.Resources.CrabBeam.Distance.punch2.Attachment))
-
 -- Delay configuration
 local startupDelay = 0.5 -- Delay in seconds before the effect starts
-
 -- Function to smoothly fade out particle emitters
 local function fadeOutParticles(particleEmitter, duration)
     local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
     local endTransparency = 1 -- Fully transparent
-
     for i = 0, duration, 0.1 do
         local alpha = i / duration
         local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
         particleEmitter.Transparency = NumberSequence.new(currentTransparency)
         task.wait(0.1)
     end
-
     -- Fully disable the particle emitter after fading out
     particleEmitter.Enabled = false
 end
-
 -- Function to play the effect
 local function playEffect()
     local test = Test:Clone()
     test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-
     -- Adjust the attachment's position to move it downward
     test.Position = Vector3.new(0, 0, 0) -- Moves the attachment 2.45 studs down relative to the parent
-
     -- Rotate the attachment to face upwards
     test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
-
     -- Configure particle emitters
     for _, child in ipairs(test:GetChildren()) do
         if child:IsA("ParticleEmitter") then
             child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
             child:Emit(10)
             child.Enabled = true
-
             -- Start fading out the particles after 2 seconds
             task.delay(2, function()
                 fadeOutParticles(child, 1) -- Fade out over 1 second
             end)
         end
     end
-
     -- Destroy the effect after the fade-out completes
     task.delay(3, function()
         test:Destroy()
     end)
 end
-
 -- Trigger the effect with a delay
 task.delay(startupDelay, playEffect)
-
-
 -- VFX for Sunblitz.TP.Part.Windy
 -- Define the effect
 local Test = game.ReplicatedStorage.Resources.Sunblitz.TP.Part.Windy
 -- Delay configuration
 local startupDelay = 0.5 -- Delay in seconds before the effect starts
-
 -- Function to smoothly fade out particle emitters
 local function fadeOutParticles(particleEmitter, duration)
     local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
     local endTransparency = 1 -- Fully transparent
-
     for i = 0, duration, 0.1 do
         local alpha = i / duration
         local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
         particleEmitter.Transparency = NumberSequence.new(currentTransparency)
         task.wait(0.1)
     end
-
     -- Fully disable the particle emitter after fading out
     particleEmitter.Enabled = false
 end
-
 -- Function to play the effect
 local function playEffect()
     local test = Test:Clone()
     test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-
     -- Adjust the attachment's position to move it downward
     test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
-
     -- Rotate the attachment to face upwards
     test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
-
     -- Configure particle emitters
     for _, child in ipairs(test:GetChildren()) do
         if child:IsA("ParticleEmitter") then
-            child:Emit(5)
+            child:Emit(10)
             child.Enabled = true
-
             -- Start fading out the particles after 2 seconds
             task.delay(2, function()
                 fadeOutParticles(child, 1) -- Fade out over 1 second
             end)
         end
     end
-
+    -- Destroy the effect after the fade-out completes
+    task.delay(3, function()
+        test:Destroy()
+    end)
+end
+-- Trigger the effect with a delay
+task.delay(startupDelay, playEffect)
+-- VFX for Sunblitz.TP.Part.Windy
+-- Define the effect
+local Test = game.ReplicatedStorage.Resources.TerribleTornado.Wind2.Part.Attachment
+-- Delay configuration
+local startupDelay = 0.5 -- Delay in seconds before the effect starts
+-- Function to smoothly fade out particle emitters
+local function fadeOutParticles(particleEmitter, duration)
+    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
+    local endTransparency = 1 -- Fully transparent
+    for i = 0, duration, 0.1 do
+        local alpha = i / duration
+        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
+        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
+        task.wait(0.1)
+    end
+    -- Fully disable the particle emitter after fading out
+    particleEmitter.Enabled = false
+end
+-- Function to play the effect
+local function playEffect()
+    local test = Test:Clone()
+    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+    -- Adjust the attachment's position to move it downward
+    test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
+    -- Rotate the attachment to face upwards
+    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
+            child:Emit(30)
+            child.Enabled = true
+            -- Start fading out the particles after 2 seconds
+            task.delay(2, function()
+                fadeOutParticles(child, 1) -- Fade out over 1 second
+            end)
+        end
+    end
     -- Destroy the effect after the fade-out completes
     task.delay(3, function()
         test:Destroy()
     end)
 end
 
--- Trigger the effect with a delay
-task.delay(startupDelay, playEffect)
 
 -- VFX for Sunblitz.TP.Part.Windy
 -- Define the effect
-local Test = game.ReplicatedStorage.Resources.TerribleTornado.Wind2.Part.Attachment
+local Test = game.ReplicatedStorage.Resources.AtomicFX.particlesroot.RootFlame
 -- Delay configuration
 local startupDelay = 0.5 -- Delay in seconds before the effect starts
 
@@ -241,60 +245,7 @@ local function playEffect()
             child.Enabled = true
 
             -- Start fading out the particles after 2 seconds
-            task.delay(2, function()
-                fadeOutParticles(child, 1) -- Fade out over 1 second
-            end)
-        end
-    end
-
-    -- Destroy the effect after the fade-out completes
-    task.delay(3, function()
-        test:Destroy()
-    end)
-end
-
--- VFX for Sunblitz.TP.Part.Windy
--- Define the effect
-local Test = game.ReplicatedStorage.Resources.AtomicFX.particlesroot.RootFlame
--- Delay configuration
-local startupDelay = 1 -- Delay in seconds before the effect starts
-
--- Function to smoothly fade out particle emitters
-local function fadeOutParticles(particleEmitter, duration)
-    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
-    local endTransparency = 1 -- Fully transparent
-
-    for i = 0, duration, 0.1 do
-        local alpha = i / duration
-        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
-        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
-        task.wait(0.1)
-    end
-
-    -- Fully disable the particle emitter after fading out
-    particleEmitter.Enabled = false
-end
-
--- Function to play the effect
-local function playEffect()
-    local test = Test:Clone()
-    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-
-    -- Adjust the attachment's position to move it downward
-    test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
-
-    -- Rotate the attachment to face upwards
-    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
-
-    -- Configure particle emitters
-    for _, child in ipairs(test:GetChildren()) do
-        if child:IsA("ParticleEmitter") then
-            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
-            child:Emit(30)
-            child.Enabled = true
-
-            -- Start fading out the particles after 2 seconds
-            task.delay(2.5, function()
+            task.delay(2.3, function()
                 fadeOutParticles(child, 1) -- Fade out over 1 second
             end)
         end
@@ -308,25 +259,3 @@ end
 
 -- Trigger the effect with a delay
 task.delay(startupDelay, playEffect)
-
---[[Adding Quote or Message when Executed]]
- 
-local player = game.Players.LocalPlayer
-repeat wait() until player.Character
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
- 
--- Messages to send
-local messages = {"To the one who left it all behind-", "And his overwhelming intensity"}
- 
-local function sendMessage(text)
-    ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(text, "All")
-end
- 
-for _, message in ipairs(messages) do
-    sendMessage(message)
-    wait(1.4) -- Wait time for each message
-end
- 
---[[END OF QUOTES]]
