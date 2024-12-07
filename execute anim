@@ -1,4 +1,3 @@
-
 --[[Execute Anims + vfx (Animations when you execute script)]]
 
 local p = game.Players.LocalPlayer
@@ -31,7 +30,7 @@ local rootPart = character:WaitForChild("HumanoidRootPart")
 local risingConfig = {
     startPosition = Vector3.new(0, -10, 0), -- Starting position offset relative to the current position
     endPosition = Vector3.new(0, 0, 0), -- Ending position offset relative to the current position
-    speed = 4.5, -- Movement speed (studs per second)
+    speed = 5, -- Movement speed (studs per second)
     startDelay = 0 -- Delay before the rising effect begins
 }
 
@@ -93,7 +92,7 @@ end)
 local Test =  ((game.ReplicatedStorage.Resources.CrabBeam.Distance.punch2.Attachment))
 
 -- Delay configuration
-local startupDelay = 0.65 -- Delay in seconds before the effect starts
+local startupDelay = 0.5 -- Delay in seconds before the effect starts
 
 -- Function to smoothly fade out particle emitters
 local function fadeOutParticles(particleEmitter, duration)
@@ -126,7 +125,7 @@ local function playEffect()
     for _, child in ipairs(test:GetChildren()) do
         if child:IsA("ParticleEmitter") then
             child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
-            child:Emit(30)
+            child:Emit(10)
             child.Enabled = true
 
             -- Start fading out the particles after 2 seconds
@@ -148,9 +147,9 @@ task.delay(startupDelay, playEffect)
 
 -- VFX for Sunblitz.TP.Part.Windy
 -- Define the effect
-local Test = game.ReplicatedStorage.Resources.AtomicFX.particlesroot.RootFlame
+local Test = game.ReplicatedStorage.Resources.Sunblitz.TP.Part.Windy
 -- Delay configuration
-local startupDelay = 0.65 -- Delay in seconds before the effect starts
+local startupDelay = 0.5 -- Delay in seconds before the effect starts
 
 -- Function to smoothly fade out particle emitters
 local function fadeOutParticles(particleEmitter, duration)
@@ -182,8 +181,7 @@ local function playEffect()
     -- Configure particle emitters
     for _, child in ipairs(test:GetChildren()) do
         if child:IsA("ParticleEmitter") then
-            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
-            child:Emit(30)
+            child:Emit(5)
             child.Enabled = true
 
             -- Start fading out the particles after 2 seconds
@@ -206,7 +204,7 @@ task.delay(startupDelay, playEffect)
 -- Define the effect
 local Test = game.ReplicatedStorage.Resources.TerribleTornado.Wind2.Part.Attachment
 -- Delay configuration
-local startupDelay = 0.65 -- Delay in seconds before the effect starts
+local startupDelay = 0.5 -- Delay in seconds before the effect starts
 
 -- Function to smoothly fade out particle emitters
 local function fadeOutParticles(particleEmitter, duration)
@@ -244,6 +242,59 @@ local function playEffect()
 
             -- Start fading out the particles after 2 seconds
             task.delay(2, function()
+                fadeOutParticles(child, 1) -- Fade out over 1 second
+            end)
+        end
+    end
+
+    -- Destroy the effect after the fade-out completes
+    task.delay(3, function()
+        test:Destroy()
+    end)
+end
+
+-- VFX for Sunblitz.TP.Part.Windy
+-- Define the effect
+local Test = game.ReplicatedStorage.Resources.AtomicFX.particlesroot.RootFlame
+-- Delay configuration
+local startupDelay = 1 -- Delay in seconds before the effect starts
+
+-- Function to smoothly fade out particle emitters
+local function fadeOutParticles(particleEmitter, duration)
+    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
+    local endTransparency = 1 -- Fully transparent
+
+    for i = 0, duration, 0.1 do
+        local alpha = i / duration
+        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
+        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
+        task.wait(0.1)
+    end
+
+    -- Fully disable the particle emitter after fading out
+    particleEmitter.Enabled = false
+end
+
+-- Function to play the effect
+local function playEffect()
+    local test = Test:Clone()
+    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+
+    -- Adjust the attachment's position to move it downward
+    test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
+
+    -- Rotate the attachment to face upwards
+    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
+
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
+            child:Emit(30)
+            child.Enabled = true
+
+            -- Start fading out the particles after 2 seconds
+            task.delay(2.5, function()
                 fadeOutParticles(child, 1) -- Fade out over 1 second
             end)
         end
