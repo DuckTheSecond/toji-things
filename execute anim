@@ -330,7 +330,3 @@ for _, message in ipairs(messages) do
 end
  
 --[[END OF QUOTES]]
-
-	task.wait(fadeOutDuration)
-	birdass:Destroy()
-end)()
