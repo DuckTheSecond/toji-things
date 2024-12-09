@@ -1,0 +1,307 @@
+--[[Execute Anims + vfx (Animations when you execute script)]]
+local p = game.Players.LocalPlayer
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+    animTrack:Stop()
+end
+ 
+local AnimAnim = Instance.new("Animation")
+AnimAnim.AnimationId = "rbxassetid://17120750680" -- Replace with your animation ID
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+local startTime = 0
+ 
+Anim:Play()
+Anim:AdjustSpeed(0)
+Anim.TimePosition = startTime
+Anim:AdjustSpeed(0.6)
+--[[END OF EXECUTE ANIMS]]
+-- Define the player and their character
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local rootPart = character:WaitForChild("HumanoidRootPart")
+-- Rising configuration
+local risingConfig = {
+    startPosition = Vector3.new(0, -10, 0), -- Starting position offset relative to the current position
+    endPosition = Vector3.new(0, 0, 0), -- Ending position offset relative to the current position
+    speed = 5, -- Movement speed (studs per second)
+    startDelay = 0 -- Delay before the rising effect begins
+}
+-- Function to disable collisions for the character
+local function setCharacterCollisionEnabled(character, enabled)
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = enabled
+        end
+    end
+end
+-- Function to move the character smoothly
+local function moveCharacter(startPosition, endPosition, speed)
+    local distance = (endPosition - startPosition).Magnitude
+    local duration = distance / speed
+    -- Create a tween to move the character
+    local tweenService = game:GetService("TweenService")
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+    local goal = { CFrame = CFrame.new(endPosition) }
+    local tween = tweenService:Create(rootPart, tweenInfo, goal)
+    tween:Play()
+    -- Wait for the tween to complete
+    tween.Completed:Wait()
+end
+-- Function to handle rising
+local function riseFromGround()
+    -- Store the character's original position
+    local originalPosition = rootPart.Position
+    -- Calculate the starting and ending positions
+    local startPosition = originalPosition + risingConfig.startPosition
+    local endPosition = originalPosition + risingConfig.endPosition
+    -- Disable collisions
+    setCharacterCollisionEnabled(character, false)
+    -- Move the character to the starting position instantly
+    rootPart.CFrame = CFrame.new(startPosition)
+    -- Smoothly move the character to the end position
+    moveCharacter(startPosition, endPosition, risingConfig.speed)
+    -- Re-enable collisions after movement
+    setCharacterCollisionEnabled(character, true)
+end
+-- Add a startup delay before the rising effect begins
+task.delay(risingConfig.startDelay, function()
+    riseFromGround()
+end)
+-- VFX for Sunblitz.TP.Part.Windy
+-- Define the effect
+local Test =  ((game.ReplicatedStorage.Resources.CrabBeam.Distance.punch2.Attachment))
+-- Delay configuration
+local startupDelay = 0.5 -- Delay in seconds before the effect starts
+-- Function to smoothly fade out particle emitters
+local function fadeOutParticles(particleEmitter, duration)
+    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
+    local endTransparency = 1 -- Fully transparent
+    for i = 0, duration, 0.1 do
+        local alpha = i / duration
+        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
+        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
+        task.wait(0.1)
+    end
+    -- Fully disable the particle emitter after fading out
+    particleEmitter.Enabled = false
+end
+-- Function to play the effect
+local function playEffect()
+    local test = Test:Clone()
+    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+    -- Adjust the attachment's position to move it downward
+    test.Position = Vector3.new(0, 0, 0) -- Moves the attachment 2.45 studs down relative to the parent
+    -- Rotate the attachment to face upwards
+    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
+            child:Emit(10)
+            child.Enabled = true
+            -- Start fading out the particles after 2 seconds
+            task.delay(2, function()
+                fadeOutParticles(child, 1) -- Fade out over 1 second
+            end)
+        end
+    end
+    -- Destroy the effect after the fade-out completes
+    task.delay(3, function()
+        test:Destroy()
+    end)
+end
+-- Trigger the effect with a delay
+task.delay(startupDelay, playEffect)
+-- VFX for Sunblitz.TP.Part.Windy
+-- Define the effect
+local Test = game.ReplicatedStorage.Resources.Sunblitz.TP.Part.Windy
+-- Delay configuration
+local startupDelay = 0.5 -- Delay in seconds before the effect starts
+-- Function to smoothly fade out particle emitters
+local function fadeOutParticles(particleEmitter, duration)
+    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
+    local endTransparency = 1 -- Fully transparent
+    for i = 0, duration, 0.1 do
+        local alpha = i / duration
+        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
+        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
+        task.wait(0.1)
+    end
+    -- Fully disable the particle emitter after fading out
+    particleEmitter.Enabled = false
+end
+-- Function to play the effect
+local function playEffect()
+    local test = Test:Clone()
+    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+    -- Adjust the attachment's position to move it downward
+    test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
+    -- Rotate the attachment to face upwards
+    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child:Emit(10)
+            child.Enabled = true
+            -- Start fading out the particles after 2 seconds
+            task.delay(2, function()
+                fadeOutParticles(child, 1) -- Fade out over 1 second
+            end)
+        end
+    end
+    -- Destroy the effect after the fade-out completes
+    task.delay(3, function()
+        test:Destroy()
+    end)
+end
+-- Trigger the effect with a delay
+task.delay(startupDelay, playEffect)
+-- VFX for Sunblitz.TP.Part.Windy
+-- Define the effect
+local Test = game.ReplicatedStorage.Resources.TerribleTornado.Wind2.Part.Attachment
+-- Delay configuration
+local startupDelay = 0.5 -- Delay in seconds before the effect starts
+-- Function to smoothly fade out particle emitters
+local function fadeOutParticles(particleEmitter, duration)
+    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
+    local endTransparency = 1 -- Fully transparent
+    for i = 0, duration, 0.1 do
+        local alpha = i / duration
+        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
+        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
+        task.wait(0.1)
+    end
+    -- Fully disable the particle emitter after fading out
+    particleEmitter.Enabled = false
+end
+-- Function to play the effect
+local function playEffect()
+    local test = Test:Clone()
+    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+    -- Adjust the attachment's position to move it downward
+    test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
+    -- Rotate the attachment to face upwards
+    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
+            child:Emit(30)
+            child.Enabled = true
+            -- Start fading out the particles after 2 seconds
+            task.delay(2, function()
+                fadeOutParticles(child, 1) -- Fade out over 1 second
+            end)
+        end
+    end
+    -- Destroy the effect after the fade-out completes
+    task.delay(3, function()
+        test:Destroy()
+    end)
+end
+
+--[[Adding Quote or Message when Executed]]
+ 
+local player = game.Players.LocalPlayer
+repeat wait() until player.Character
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+ 
+-- Messages to send
+local messages = {"To the one who left it all behind-", "And his overwhelming intensity"}
+ 
+local function sendMessage(text)
+    ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(text, "All")
+end
+ 
+for _, message in ipairs(messages) do
+    sendMessage(message)
+    wait(1.4) -- Wait time for each message
+end
+ 
+--[[END OF QUOTES]]
+coroutine.wrap(function()
+	local ts=game:GetService("TweenService")
+	local Debris=game:GetService("Debris")
+	local birdass=Instance.new("BillboardGui")
+	local Aztech=Instance.new("Frame")
+	local idk2=Instance.new("TextLabel")
+	local AztechTeam=Instance.new("Frame")
+	local idk=Instance.new("TextLabel")
+	local function tweenProperty(object,properties,duration)
+		local tweenInfo=TweenInfo.new(duration,Enum.EasingStyle.Cubic,Enum.EasingDirection.InOut)
+		local tween=ts:Create(object,tweenInfo,properties)
+		tween:Play()
+		return tween
+	end
+	local player=game.Players.LocalPlayer
+	local character=player.Character or player.CharacterAdded:Wait()
+	local humanoidRootPart=character:WaitForChild("HumanoidRootPart")
+	birdass.Active=true
+	birdass.Size=UDim2.new(15,0,15,0)
+	birdass.StudsOffset=Vector3.new(0,0,2)
+	birdass.ZIndexBehavior=Enum.ZIndexBehavior.Sibling
+	birdass.Name="birdass"
+	birdass.Parent=humanoidRootPart
+	Aztech.AnchorPoint=Vector2.new(0.5,0.5)
+	Aztech.BackgroundColor3=Color3.new(1,1,1)
+	Aztech.BorderColor3=Color3.new(0,0,0)
+	Aztech.BorderSizePixel=2
+	Aztech.Position=UDim2.new(0.6,0,-0.2,0)
+	Aztech.Size=UDim2.new(0.1,0,0.2,0)
+	Aztech.Name="Aztech"
+	Aztech.BackgroundTransparency=1
+	Aztech.Parent=birdass
+	idk2.FontFace=Font.new("rbxassetid://12187375716",Enum.FontWeight.Bold,Enum.FontStyle.Italic)
+	idk2.Text="To the one who left it all behind-"
+	idk2.TextColor3=Color3.new(0,0,0)
+	idk2.TextScaled=true
+	idk2.TextWrapped=true
+	idk2.AnchorPoint=Vector2.new(0.5,0.5)
+	idk2.Position=UDim2.new(0.5,0,0.5,0)
+	idk2.Size=UDim2.new(0.85,0,0.35,0)
+	idk2.Name="idk2"
+	idk2.TextTransparency=1
+	idk2.BackgroundTransparency=1
+	idk2.Parent=Aztech
+	AztechTeam.AnchorPoint=Vector2.new(0.16,0.55)
+	AztechTeam.BackgroundColor3=Color3.new(1,1,1)
+	AztechTeam.BorderColor3=Color3.new(0,0,0)
+	AztechTeam.BorderSizePixel=2
+	AztechTeam.Position=UDim2.new(0.5,0,0.5,0)
+	AztechTeam.Size=UDim2.new(0.1,0,0.2,0)
+	AztechTeam.Name="AztechTeam"
+	AztechTeam.BackgroundTransparency=1
+	AztechTeam.Parent=birdass
+	idk.FontFace=Font.new("rbxassetid://12187375716",Enum.FontWeight.Bold,Enum.FontStyle.Italic)
+	idk.Text="And his overwhelming intensity"
+	idk.TextColor3=Color3.new(0,0,0)
+	idk.TextScaled=true
+	idk.TextWrapped=true
+	idk.AnchorPoint=Vector2.new(0.5,0.5)
+	idk.Position=UDim2.new(0.5,0,0.5,0)
+	idk.Size=UDim2.new(0.85,0,0.5,0)
+	idk.Name="idk"
+	idk.TextTransparency=1
+	idk.BackgroundTransparency=1
+	idk.Parent=AztechTeam
+	local fadeInDuration=0.6
+	local fadeOutDuration=5
+	local waitTime=1
+	tweenProperty(Aztech,{BackgroundTransparency=0,Position=UDim2.new(0.6,0,0.4,0)},fadeInDuration)
+	tweenProperty(idk2,{TextTransparency=0},fadeInDuration)
+	task.wait(0.3)
+	tweenProperty(AztechTeam,{BackgroundTransparency=0,Position=UDim2.new(0.35,0,0.5,0)},fadeInDuration)
+	tweenProperty(idk,{TextTransparency=0},fadeInDuration)
+	task.wait(waitTime)
+	tweenProperty(Aztech,{BackgroundTransparency=1},fadeOutDuration)
+	tweenProperty(idk2,{TextTransparency=1},fadeOutDuration)
+	tweenProperty(AztechTeam,{BackgroundTransparency=1},fadeOutDuration)
+	tweenProperty(idk,{TextTransparency=1},fadeOutDuration)
+	task.wait(fadeOutDuration)
+	birdass:Destroy()
+end)()
