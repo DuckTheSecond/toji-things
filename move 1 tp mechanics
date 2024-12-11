@@ -1,0 +1,182 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local animationId = "rbxassetid://14705929107" -- Animation ID for the original animation
+local teleportAnimationId = "rbxassetid://15957361339" -- Animation ID for the teleportation animation
+local teleportDelay = 0.9 -- Time in seconds to wait before teleporting
+local teleportAnimationSpeed = 1.25 -- Change this value to adjust the speed of the teleport animation
+
+-- Function to find the closest player in front of you
+local function getPlayerInFront()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+    local lookVector = humanoidRootPart.CFrame.LookVector
+
+    for _, otherPlayer in pairs(game.Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local otherHumanoidRootPart = otherPlayer.Character.HumanoidRootPart
+            local directionToPlayer = (otherHumanoidRootPart.Position - humanoidRootPart.Position).Unit
+            local angle = math.acos(lookVector:Dot(directionToPlayer))
+
+            if angle < math.rad(45) then -- Adjust the angle threshold as needed
+                local distance = (humanoidRootPart.Position - otherHumanoidRootPart.Position).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    closestPlayer = otherPlayer
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+-- Function to teleport to the closest player, but 2 studs in front of them
+local function TeleportTo(playerTarget)
+    if playerTarget and playerTarget.Character and playerTarget.Character:FindFirstChild("HumanoidRootPart") then
+        -- Get the target player's position
+        local targetPosition = playerTarget.Character.HumanoidRootPart.Position
+        
+        -- Move 2 studs in front of the player (in the direction they are facing)
+        local newPosition = targetPosition + humanoidRootPart.CFrame.LookVector * -2
+        
+        -- Set the player's position to 2 studs in front
+        humanoidRootPart.CFrame = CFrame.new(newPosition)
+    end
+end
+
+-- Function to play the teleportation animation with custom speed
+local function playTeleportAnimation()
+    -- Create the teleport animation instance
+    local teleportAnimation = Instance.new("Animation")
+    teleportAnimation.AnimationId = teleportAnimationId
+    
+    -- Load and play the teleport animation
+    local animationTrack = humanoid:LoadAnimation(teleportAnimation)
+    animationTrack:Play()
+
+    -- Set the playback speed of the animation
+    animationTrack.PlaybackSpeed = teleportAnimationSpeed
+    
+    -- Optionally return the animation track if you need to wait for it
+    return animationTrack
+end
+
+-- Connect to animation playback
+humanoid.Animator.AnimationPlayed:Connect(function(track)
+    if track.Animation.AnimationId == animationId then
+        -- Wait for the animation to end
+        track.Stopped:Wait()
+
+        -- Add a delay before teleporting
+        task.wait(teleportDelay)
+
+        -- Find the player in front and teleport
+        local playerInFront = getPlayerInFront()
+        TeleportTo(playerInFront)
+
+        -- Play the teleport animation after teleporting
+        local teleportAnimTrack = playTeleportAnimation()
+
+        -- Optionally, wait for the teleport animation to finish
+        teleportAnimTrack.Stopped:Wait()
+    end
+end)
+
+
+-- Define the animation ID to detect
+local moveAnimationId = "rbxassetid://15957361339"  -- Replace with the actual animation ID
+
+-- Define the first effect (Sunrise.Forward.Part.Attachment)
+local Test1 = game.ReplicatedStorage.Resources.NinjaRun.Heavy_Effects.Start.Teleport_Path.End1
+
+-- Function to fade out a particle emitter
+local function fadeOutParticleEmitter(emitter, duration)
+    local startRate = emitter.Rate
+    local startTransparency = emitter.Transparency.Keypoints[1].Value
+
+    for i = 0, 1, 0.1 do
+        local t = i
+        emitter.Rate = startRate * (1 - t)
+        emitter.Transparency = NumberSequence.new(startTransparency + (t * (1 - startTransparency)))
+        task.wait(duration / 10)
+    end
+
+    -- Ensure emitter is fully disabled after fade-out
+    emitter.Enabled = false
+end
+
+-- Function to play the first effect (Sunrise.Forward.Part.Attachment)
+local function playEffect1()
+    local test = Test1:Clone()
+    test.Parent = game.Players.LocalPlayer.Character["HumanoidRootPart"]
+
+    -- Adjust the attachment's position
+    test.Position = Vector3.new(0, 0, 0)
+
+    -- Rotate the attachment
+    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 80, 0)
+
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set to black
+            child:Emit(10)
+            child.Enabled = true
+            -- Add fade-out to particle emitters
+            task.delay(2, function() fadeOutParticleEmitter(child, 1) end)
+        end
+    end
+
+    -- Destroy the attachment after the effect ends
+    task.delay(0.6, function()
+        test:Destroy()
+    end)
+end
+
+-- Detect when the animation is played and trigger both effects
+local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+local humanoid = character:FindFirstChild("Humanoid")
+
+if humanoid then
+    humanoid.AnimationPlayed:Connect(function(track)
+        -- Check if the animation matches the specified ID
+        if track.Animation.AnimationId == moveAnimationId then
+            -- Trigger the first effect (Sunrise.Forward.Part.Attachment)
+            playEffect1()
+
+        end
+    end)
+end
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local animator = humanoid:WaitForChild("Animator")
+
+-- Replace with your animation ID
+local animationId = "rbxassetid://15957361339" -- Replace this with your animation's ID
+
+-- Function to set character transparency
+local function setTransparency(value)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and part.Transparency ~= 1 then
+            part.Transparency = value
+        end
+    end
+end
+
+-- Trigger transparency effect when the animation starts
+animator.AnimationPlayed:Connect(function(animationTrack)
+    if animationTrack.Animation.AnimationId == animationId then
+        -- Make the character transparent
+        setTransparency(0.5) -- Adjust transparency level as needed
+
+        -- Reset transparency after 3 seconds
+        task.delay(0.6, function()
+            setTransparency(0)
+        end)
+    end
+end)
