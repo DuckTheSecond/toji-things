@@ -5,7 +5,7 @@ local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
 local animationId = "rbxassetid://15279910941" -- Animation ID for the original animation
 local teleportAnimationId = "rbxassetid://15957361339" -- Animation ID for the teleportation animation
-local teleportDelay = 1.5 -- Time in seconds to wait before teleporting
+local teleportDelay = 1.39 -- Time in seconds to wait before teleporting
 local teleportAnimationSpeed = 1.25 -- Change this value to adjust the speed of the teleport animation
 
 -- Function to find the closest player in front of you
