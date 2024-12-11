@@ -1,7 +1,12 @@
-
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local animator = humanoid:WaitForChild("Animator")
 
+-- Replace with your animation ID
+local animationId = "rbxassetid://14004235777" -- Replace this with your animation's ID
+
+-- Function to set character transparency
 local function setTransparency(value)
     for _, part in ipairs(character:GetDescendants()) do
         if part:IsA("BasePart") and part.Transparency ~= 1 then
@@ -10,15 +15,18 @@ local function setTransparency(value)
     end
 end
 
--- Make the character transparent
-setTransparency(0.5) -- Adjust to your desired level of transparency (0 is fully visible, 1 is fully invisible)
+-- Trigger transparency effect when the animation starts
+animator.AnimationPlayed:Connect(function(animationTrack)
+    if animationTrack.Animation.AnimationId == animationId then
+        -- Make the character transparent
+        setTransparency(0.5) -- Adjust transparency level as needed
 
--- Wait for 3 seconds
-task.delay(3, function()
-    -- Reset transparency to normal
-    setTransparency(0)
+        -- Reset transparency after 3 seconds
+        task.delay(3, function()
+            setTransparency(0)
+        end)
+    end
 end)
-
 
 -- Define the animation ID to detect
 local moveAnimationId = "rbxassetid://14004235777"  -- Replace with the actual animation ID
