@@ -22,7 +22,7 @@ animator.AnimationPlayed:Connect(function(animationTrack)
         setTransparency(0.5) -- Adjust transparency level as needed
 
         -- Reset transparency after 3 seconds
-        task.delay(1.48, function()
+        task.delay(1.52, function()
             setTransparency(0)
         end)
     end
@@ -76,7 +76,7 @@ local function playEffect1()
     end
 
     -- Destroy the attachment after the effect ends
-    task.delay(1.48, function()
+    task.delay(1.52, function()
         test:Destroy()
     end)
 end
@@ -98,7 +98,7 @@ local function playEffect2()
     end
 
     -- Destroy the attachment after the effect ends
-    task.delay(1.48, function()
+    task.delay(1.52, function()
         test:Destroy()
     end)
 end
