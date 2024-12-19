@@ -1,0 +1,99 @@
+
+-- Define the animation ID to detect
+local moveAnimationId = "rbxassetid://15134211820"  -- Replace with the actual animation ID
+
+-- Define the first effect (Sunrise.Forward.Part.Attachment)
+local Test1 = game.ReplicatedStorage.Resources.BatBarrageEffects.FinalSlam.Root.Center
+
+-- Define the second effect (Dragon.General.General.Smoke)
+local Test2 = game.ReplicatedStorage.Resources.KJEffects.DropkickExtra.lastimpact.lastuimapktu
+
+-- Define startup delay (in seconds)
+local startupDelay = 1.13  -- Set to the delay time before the effects start
+
+-- Function to fade out a particle emitter
+local function fadeOutParticleEmitter(emitter, duration)
+    local startRate = emitter.Rate
+    local startTransparency = emitter.Transparency.Keypoints[1].Value
+
+    for i = 0, 1, 0.1 do
+        local t = i
+        emitter.Rate = startRate * (1 - t)
+        emitter.Transparency = NumberSequence.new(startTransparency + (t * (1 - startTransparency)))
+        task.wait(duration / 10)
+    end
+
+    -- Ensure emitter is fully disabled after fade-out
+    emitter.Enabled = false
+end
+
+-- Function to play the first effect (Sunrise.Forward.Part.Attachment)
+local function playEffect1()
+    task.wait(startupDelay)  -- Wait before starting the effect
+
+    local test = Test1:Clone()
+    test.Parent = game.Players.LocalPlayer.Character["HumanoidRootPart"]
+
+    -- Adjust the attachment's position
+    test.Position = Vector3.new(0, -2.45, 0)
+
+    -- Rotate the attachment
+    test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
+
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set to black
+            child:Emit(10)
+            child.Enabled = true
+            -- Add fade-out to particle emitters
+            task.delay(1.5, function() fadeOutParticleEmitter(child, 1) end)
+        end
+    end
+
+    -- Destroy the attachment after the effect ends
+    task.delay(2.5, function()
+        test:Destroy()
+    end)
+end
+
+-- Function to play the second effect (Dragon.General.General.Smoke)
+local function playEffect2()
+    task.wait(startupDelay)  -- Wait before starting the effect
+
+    local test = Test2:Clone()
+    test.Parent = game.Players.LocalPlayer.Character["HumanoidRootPart"]
+
+    -- Configure particle emitters
+    for _, child in ipairs(test:GetChildren()) do
+        if child:IsA("ParticleEmitter") then
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set to black
+            child:Emit(10)
+            child.Enabled = true
+            -- Add fade-out to particle emitters
+            task.delay(1.5, function() fadeOutParticleEmitter(child, 1) end)
+        end
+    end
+
+    -- Destroy the attachment after the effect ends
+    task.delay(2.5, function()
+        test:Destroy()
+    end)
+end
+
+-- Detect when the animation is played and trigger both effects
+local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
+local humanoid = character:FindFirstChild("Humanoid")
+
+if humanoid then
+    humanoid.AnimationPlayed:Connect(function(track)
+        -- Check if the animation matches the specified ID
+        if track.Animation.AnimationId == moveAnimationId then
+            -- Trigger the first effect (Sunrise.Forward.Part.Attachment)
+            playEffect1()
+
+            -- Trigger the second effect (Dragon.General.General.Smoke)
+            playEffect2()
+        end
+    end)
+end
