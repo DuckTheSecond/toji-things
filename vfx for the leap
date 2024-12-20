@@ -20,7 +20,7 @@ local function fadeOutParticleEmitter(emitter, duration)
         local t = i
         emitter.Rate = startRate * (1 - t)
         emitter.Transparency = NumberSequence.new(startTransparency + (t * (1 - startTransparency)))
-        task.wait(duration / 10)
+        task.wait(duration / 5)
     end
 
     -- Ensure emitter is fully disabled after fade-out
@@ -47,12 +47,12 @@ local function playEffect1()
             child:Emit(10)
             child.Enabled = true
             -- Add fade-out to particle emitters
-            task.delay(1.5, function() fadeOutParticleEmitter(child, 1) end)
+            task.delay(1, function() fadeOutParticleEmitter(child, 1) end)
         end
     end
 
     -- Destroy the attachment after the effect ends
-    task.delay(2.5, function()
+    task.delay(1.5, function()
         test:Destroy()
     end)
 end
@@ -71,12 +71,12 @@ local function playEffect2()
             child:Emit(10)
             child.Enabled = true
             -- Add fade-out to particle emitters
-            task.delay(1.5, function() fadeOutParticleEmitter(child, 1) end)
+            task.delay(1, function() fadeOutParticleEmitter(child, 1) end)
         end
     end
 
     -- Destroy the attachment after the effect ends
-    task.delay(2.5, function()
+    task.delay(1.5, function()
         test:Destroy()
     end)
 end
