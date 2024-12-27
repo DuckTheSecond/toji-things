@@ -1,70 +1,56 @@
 
--- Define the animation ID to detect
-local moveAnimationId = "rbxassetid://15134211820"  -- Replace with the actual animation ID
+-- VFX for Sunblitz.TP.Part.Windy
+-- Define the effect
+local Test = game.ReplicatedStorage.Resources.TerribleTornado.Wind2.Part.Attachment
+-- Delay configuration
+local startupDelay = 1.2 -- Delay in seconds before the effect starts
 
--- Define the first effect (Sunrise.Forward.Part.Attachment)
-local Test1 = game.ReplicatedStorage.Resources.BatBarrageEffects.FinalSlam.Root.Center
+-- Function to smoothly fade out particle emitters
+local function fadeOutParticles(particleEmitter, duration)
+    local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
+    local endTransparency = 1 -- Fully transparent
 
--- Define startup delay (in seconds)
-local startupDelay = 1.13  -- Set to the delay time before the effects start
-
--- Function to fade out a particle emitter
-local function fadeOutParticleEmitter(emitter, duration)
-    local startRate = emitter.Rate
-    local startTransparency = emitter.Transparency.Keypoints[1].Value
-
-    for i = 0, 1, 0.1 do
-        local t = i
-        emitter.Rate = startRate * (1 - t)
-        emitter.Transparency = NumberSequence.new(startTransparency + (t * (1 - startTransparency)))
-        task.wait(duration / 5)
+    for i = 0, duration, 0.1 do
+        local alpha = i / duration
+        local currentTransparency = startTransparency + (endTransparency - startTransparency) * alpha
+        particleEmitter.Transparency = NumberSequence.new(currentTransparency)
+        task.wait(0.1)
     end
 
-    -- Ensure emitter is fully disabled after fade-out
-    emitter.Enabled = false
+    -- Fully disable the particle emitter after fading out
+    particleEmitter.Enabled = false
 end
 
--- Function to play the first effect (Sunrise.Forward.Part.Attachment)
-local function playEffect1()
-    task.wait(startupDelay)  -- Wait before starting the effect
+-- Function to play the effect
+local function playEffect()
+    local test = Test:Clone()
+    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
 
-    local test = Test1:Clone()
-    test.Parent = game.Players.LocalPlayer.Character["HumanoidRootPart"]
+    -- Adjust the attachment's position to move it downward
+    test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
 
-    -- Adjust the attachment's position
-    test.Position = Vector3.new(0, -2.45, 0)
-
-    -- Rotate the attachment
+    -- Rotate the attachment to face upwards
     test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
 
     -- Configure particle emitters
     for _, child in ipairs(test:GetChildren()) do
         if child:IsA("ParticleEmitter") then
-            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set to black
-            child:Emit(10)
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
+            child:Emit(30)
             child.Enabled = true
-            -- Add fade-out to particle emitters
-            task.delay(0.3, function() fadeOutParticleEmitter(child, 0.3) end)
+
+            -- Start fading out the particles after 2 seconds
+            task.delay(0.4, function()
+                fadeOutParticles(child, 1) -- Fade out over 1 second
+            end)
         end
     end
 
-    -- Destroy the attachment after the effect ends
-    task.delay(0.3, function()
+    -- Destroy the effect after the fade-out completes
+    task.delay(2, function()
         test:Destroy()
     end)
 end
 
--- Detect when the animation is played and trigger both effects
-local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
-local humanoid = character:FindFirstChild("Humanoid")
-
-if humanoid then
-    humanoid.AnimationPlayed:Connect(function(track)
-        -- Check if the animation matches the specified ID
-        if track.Animation.AnimationId == moveAnimationId then
-            -- Trigger the first effect (Sunrise.Forward.Part.Attachment)
-            playEffect1()
-
-        end
-    end)
-end
+-- Trigger the effect with a delay
+task.delay(startupDelay, playEffect)
