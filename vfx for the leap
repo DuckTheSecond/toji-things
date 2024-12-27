@@ -5,9 +5,6 @@ local moveAnimationId = "rbxassetid://15134211820"  -- Replace with the actual a
 -- Define the first effect (Sunrise.Forward.Part.Attachment)
 local Test1 = game.ReplicatedStorage.Resources.BatBarrageEffects.FinalSlam.Root.Center
 
--- Define the second effect (Dragon.General.General.Smoke)
-local Test2 = game.ReplicatedStorage.Resources.KJEffects.DropkickExtra.lastimpact.lastuimapktu
-
 -- Define startup delay (in seconds)
 local startupDelay = 1.13  -- Set to the delay time before the effects start
 
@@ -57,30 +54,6 @@ local function playEffect1()
     end)
 end
 
--- Function to play the second effect (Dragon.General.General.Smoke)
-local function playEffect2()
-    task.wait(startupDelay)  -- Wait before starting the effect
-
-    local test = Test2:Clone()
-    test.Parent = game.Players.LocalPlayer.Character["HumanoidRootPart"]
-
-    -- Configure particle emitters
-    for _, child in ipairs(test:GetChildren()) do
-        if child:IsA("ParticleEmitter") then
-            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set to black
-            child:Emit(10)
-            child.Enabled = true
-            -- Add fade-out to particle emitters
-            task.delay(0.3, function() fadeOutParticleEmitter(child, 0.3) end)
-        end
-    end
-
-    -- Destroy the attachment after the effect ends
-    task.delay(0.3, function()
-        test:Destroy()
-    end)
-end
-
 -- Detect when the animation is played and trigger both effects
 local character = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
 local humanoid = character:FindFirstChild("Humanoid")
@@ -92,8 +65,6 @@ if humanoid then
             -- Trigger the first effect (Sunrise.Forward.Part.Attachment)
             playEffect1()
 
-            -- Trigger the second effect (Dragon.General.General.Smoke)
-            playEffect2()
         end
     end)
 end
