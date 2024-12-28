@@ -1,14 +1,91 @@
+local r = game:GetService("ReplicatedStorage")
+local p = game:GetService("Players").LocalPlayer
+local workspace = game:GetService("Workspace")
+local humanoid = p.Character:WaitForChild("Humanoid")
+local moveAnimationId = "rbxassetid://15134211820" -- Animation ID to detect
 
--- VFX for Sunblitz.TP.Part.Windy
--- Define the effect
+local isPlaying = false -- Flag to prevent duplicate VFX plays
+
+local function m()
+    -- Delay before creating and playing the VFX
+    task.wait(1.1)
+
+    local res = r:FindFirstChild("Resources")
+    if not res then return end
+
+    local k = res:FindFirstChild("Sorcerer")
+    if not k then return end
+
+    local j = k:FindFirstChild("WallFX")
+    if not j then return end
+
+    local s = j:FindFirstChild("FirstSlam")
+    if not s or not s:IsA("BasePart") then return end
+
+    -- Get player's position
+    local playerPos = p.Character.HumanoidRootPart.Position
+
+    -- Raycast from player's position downwards to find the floor
+    local rayOrigin = playerPos
+    local rayDirection = Vector3.new(0, -100, 0) -- Cast downwards to detect the ground
+
+    local rayParams = RaycastParams.new()
+    rayParams.FilterDescendantsInstances = {p.Character}
+    rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+    -- Perform the raycast
+    local rayResult = workspace:Raycast(rayOrigin, rayDirection, rayParams)
+
+    if rayResult then
+        -- Raycast hit the floor, set the position for the VFX
+        local groundPosition = rayResult.Position
+
+        local c = s:Clone()
+
+        -- Adjust orientation of the VFX part to lay flat on the floor
+        local orientation = CFrame.new(groundPosition)
+        local adjustedCFrame = orientation * CFrame.Angles(math.rad(90), 0, 0) -- Adjusting the orientation to lay flat
+
+        c.CFrame = adjustedCFrame -- Position VFX on the ground and apply rotation
+        c.Parent = workspace
+
+        -- Emit particles from the VFX
+        for _, a in pairs(c:GetDescendants()) do
+            if a:IsA("Attachment") then
+                for _, v in pairs(a:GetDescendants()) do
+                    if v:IsA("ParticleEmitter") then
+                        v:Emit(4) -- Emit particles
+                    end
+                end
+            end
+        end
+    else
+        warn("No ground detected below the player.")
+    end
+
+    isPlaying = false -- Reset the flag after VFX is complete
+end
+
+local function detectAnimation()
+    humanoid.AnimationPlayed:Connect(function(track)
+        if track.Animation.AnimationId == moveAnimationId and not isPlaying then
+            isPlaying = true -- Set the flag to prevent duplicate execution
+            m() -- Trigger VFX after delay
+        end
+    end)
+end
+
+detectAnimation()
+
 local Test = game.ReplicatedStorage.Resources.TerribleTornado.Wind2.Part.Attachment
--- Delay configuration
-local startupDelay = 1.2 -- Delay in seconds before the effect starts
+local animationId = "rbxassetid://15134211820"
+local vfxDelay = 1.1
+local activeEffects = {}
+local isPlaying = false -- Debounce flag to prevent multiple triggers
 
--- Function to smoothly fade out particle emitters
 local function fadeOutParticles(particleEmitter, duration)
     local startTransparency = particleEmitter.Transparency.Keypoints[1].Value
-    local endTransparency = 1 -- Fully transparent
+    local endTransparency = 1
 
     for i = 0, duration, 0.1 do
         local alpha = i / duration
@@ -17,40 +94,73 @@ local function fadeOutParticles(particleEmitter, duration)
         task.wait(0.1)
     end
 
-    -- Fully disable the particle emitter after fading out
     particleEmitter.Enabled = false
 end
 
--- Function to play the effect
 local function playEffect()
     local test = Test:Clone()
-    test.Parent = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+    local character = game.Players.LocalPlayer.Character
+    if not character then return end
 
-    -- Adjust the attachment's position to move it downward
-    test.Position = Vector3.new(0, -2.45, 0) -- Moves the attachment 2.45 studs down relative to the parent
-
-    -- Rotate the attachment to face upwards
+    test.Parent = character:WaitForChild("HumanoidRootPart")
+    test.Position = Vector3.new(0, -2.45, 0)
     test.CFrame = test.CFrame * CFrame.Angles(math.rad(0), 0, 0)
 
-    -- Configure particle emitters
+    table.insert(activeEffects, test)
+
     for _, child in ipairs(test:GetChildren()) do
         if child:IsA("ParticleEmitter") then
-            child.Color = ColorSequence.new(Color3.new(0, 0, 0)) -- Set particles to black
+            child.Color = ColorSequence.new(Color3.new(0, 0, 0))
             child:Emit(30)
             child.Enabled = true
 
-            -- Start fading out the particles after 2 seconds
             task.delay(0.4, function()
-                fadeOutParticles(child, 1) -- Fade out over 1 second
+                fadeOutParticles(child, 1)
             end)
         end
     end
 
-    -- Destroy the effect after the fade-out completes
     task.delay(2, function()
-        test:Destroy()
+        if test.Parent then
+            table.remove(activeEffects, table.find(activeEffects, test))
+            test:Destroy()
+        end
     end)
 end
 
--- Trigger the effect with a delay
-task.delay(startupDelay, playEffect)
+local function onAnimationPlayed(animTrack)
+    if animTrack.Animation.AnimationId == animationId and not isPlaying then
+        isPlaying = true -- Set debounce
+        task.delay(vfxDelay, function()
+            playEffect()
+            isPlaying = false -- Reset debounce after delay
+        end)
+    end
+end
+
+local function setupAnimationDetection(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    local animator = humanoid:FindFirstChild("Animator") or humanoid:WaitForChild("Animator")
+    animator.AnimationPlayed:Connect(onAnimationPlayed)
+end
+
+local function cleanupEffects()
+    for _, effect in ipairs(activeEffects) do
+        if effect and effect.Parent then
+            effect:Destroy()
+        end
+    end
+    activeEffects = {}
+end
+
+local player = game.Players.LocalPlayer
+
+if player.Character then
+    setupAnimationDetection(player.Character)
+    player.CharacterRemoving:Connect(cleanupEffects)
+end
+
+player.CharacterAdded:Connect(function(character)
+    setupAnimationDetection(character)
+    player.CharacterRemoving:Connect(cleanupEffects)
+end)
