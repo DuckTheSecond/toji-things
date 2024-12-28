@@ -90,7 +90,7 @@ end)
 local moveAnimationId = "rbxassetid://15957361339"  -- Replace with the actual animation ID
 
 -- Define the first effect (Sunrise.Forward.Part.Attachment)
-local Test1 = game.ReplicatedStorage.Resources.NinjaRun.Heavy_Effects.Start.Teleport_Path.End1
+local Test1 = game:GetService("ReplicatedStorage").Resources.NinjaUlt.StartEffects.Particles.Low
 
 -- Function to fade out a particle emitter
 local function fadeOutParticleEmitter(emitter, duration)
