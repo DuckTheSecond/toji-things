@@ -140,7 +140,7 @@ animator.AnimationPlayed:Connect(function(playedAnimation)
 
         for _, vfx in ipairs(vfxSettings) do
             emitVFX(vfxTemplate, vfx.color, vfx.angle)
-            task.wait(3.1) -- Delay between each VFX emission
+            task.wait(2.9) -- Delay between each VFX emission
         end
     end
 end)
