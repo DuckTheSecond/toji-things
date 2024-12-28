@@ -26,20 +26,20 @@ end
 local vfxTemplate = game.ReplicatedStorage.Resources.SplitCounter["Bruh"].Bruh.Bruh
 local animationId = "rbxassetid://15290930205"
 local vfxSettings = {
-    {angle = 45, color = Color3.new(173, 216, 230)},
-    {angle = -25, color = Color3.new(173, 216, 230)},
-    {angle = 110, color = Color3.new(173, 216, 230)},
-    {angle = -90, color = Color3.new(173, 216, 230)},
-    {angle = -15, color = Color3.new(173, 216, 230)},
-    {angle = 0, color = Color3.new(173, 216, 230)},
-    {angle = 90, color = Color3.new(173, 216, 230)},
-    {angle = 30, color = Color3.new(173, 216, 230)},
-    {angle = 15, color = Color3.new(173, 216, 230)},
-    {angle = -30, color = Color3.new(173, 216, 230)},
-    {angle = 5, color = Color3.new(173, 216, 230)},
-    {angle = 60, color = Color3.new(173, 216, 230)},
-    {angle = 43, color = Color3.new(173, 216, 230)},
-    {angle = 90, color = Color3.new(173, 216, 230)},
+    {angle = 45, color = Color3.new(0, 0.5, 225)},
+    {angle = -25, color = Color3.new(0, 0.5, 255)},
+    {angle = 110, color = Color3.new(0, 0.5, 255)},
+    {angle = -90, color = Color3.new(0, 0.5, 255)},
+    {angle = -15, color = Color3.new(0, 0.5, 255)},
+    {angle = 0, color = Color3.new(0, 0.5, 255)},
+    {angle = 90, color = Color3.new(0, 0.5, 255)},
+    {angle = 30, color = Color3.new(0, 0.5, 255)},
+    {angle = 15, color = Color3.new(0, 0.5, 255)},
+    {angle = -30, color = Color3.new(0, 0.5, 255)},
+    {angle = 5, color = Color3.new(0, 0.5, 255)},
+    {angle = 60, color = Color3.new(0, 0.5, 255)},
+    {angle = 43, color = Color3.new(0, 0.5, 255)},
+    {angle = 90, color = Color3.new(0, 0.5, 255)},
 }
 
 -- Listen for animation playback
